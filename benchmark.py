@@ -7,7 +7,7 @@ def get_file_list(file_number, prefix):
     file_list = []
     for i in range(0, file_number):
         file_list.append(prefix+str(i))
-    return str(file_list).replace('[','').replace(']','').replace('\'','')
+    return str(file_list).replace('[','').replace(']','').replace('\'','').replace(',','')
 
 # File Heterogeneity
 
