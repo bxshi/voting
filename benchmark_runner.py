@@ -17,7 +17,9 @@ def opts(argv):
     params = {}
     params['execution_times'] = int(argv[1])
     params['log_file'] = argv[2]
-    params['arg'] = argv[3]
+    params['custom_col'] = argv[3]
+    params['custom_val'] = float(argv[4])
+    params['arg'] = argv[5]
     return params
     
 def do_benchmark(arguments):
@@ -27,15 +29,16 @@ def do_benchmark(arguments):
     os.system(PROF_ARG)
     pass
 
-def accumulate_data():
+def accumulate_data(custom_val):
 
-    # data : time, memory, CPU/IO ratio, thread time, mutex call times
+    # data : custom_col, time, memory, CPU/IO ratio, thread time, mutex call times
 
     data = []
     
     f = open(TEMP_TIME_LOG, 'r')
     t = f.read().split('\n')[0].split(';')
-    
+   
+    data.append(custom_val) 
     data.append(float(t[0].split(':')[0])*60 + float(t[0].split(':')[1]))
     data.append(int(t[1]))
     
@@ -56,7 +59,7 @@ def accumulate_data():
             mutex_call_times += int(line[4])
             
     data.append(float(io_precent)/float(100-io_precent))
-    data.append(data[0] * critical_precent)
+    data.append(data[1] * critical_precent/100)
     data.append(mutex_call_times)
     
     return data
@@ -67,12 +70,12 @@ def main(argv):
     
     params = opts(argv)
     
-    f = open(params['log_file'], 'w')
-    f.write('time, memory, ratio, thread, mutex\n')
+    f = open(params['log_file'], 'aw')
+    #f.write(params['custom_col']+', time, memory, ratio, thread, mutex\n')
     
     for i in range(0, params['execution_times']):
         do_benchmark(params['arg'])
-        data = accumulate_data()
+        data = accumulate_data(params['custom_val'])
 	print data
         f.write(str(data).replace('[','').replace(']',''))
 	f.write('\n')
