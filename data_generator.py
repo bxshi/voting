@@ -20,8 +20,13 @@ def opts(argv):
     return params
 
 def generate_votes(alpha, total_number):
-    votes = numpy.random.zipf(alpha, total_number) % (MAX_INT32+1)
-    print votes
+    if(alpha == 1):
+        votes = []
+        for i in xrange(0, total_number):
+	    votes.append(random.getrandbits(32))
+        return votes
+
+    votes = numpy.random.zipf(alpha, total_number)
     return votes
 
 def get_file_id(alpha, file_number):
@@ -29,28 +34,40 @@ def get_file_id(alpha, file_number):
 
 def write_votes(votes, file_number, alpha, prefix):
     file_list = []
-    for i in range(0, file_number):
-        file_list.append(open(prefix+str(i), 'w'))
-    
-    while len(votes) > 0:
+    data_list = []
+    for i in xrange(0, file_number):
+        data_list.append([])
+
+    print "divide votes into seperate bucket"   
+    bucket = generate_votes(alpha, len(votes))
+    print "bucket initalized"
+    for i in xrange(0, len(votes)):
         try:
-            v = str(votes.pop())
-            fid = file_list[get_file_id(alpha, len(file_list))]
-            fid.write(str(random.getrandbits(32))+','+str(v)+'\n')
+            if votes[i] > MAX_INT32:
+                votes[i] = votes[i] % (MAX_INT32+1)
+            if bucket[i] > file_number:
+                bucket[i] = bucket[i] % file_number
+            data_list[bucket[i]].append(votes[i])
         except IndexError:
-            break;
-    
-    for i in range(0, len(file_list)):
-        file_list[i].close()
+	    print i, votes[i]
+            print bucket[i]
+            print len(data_list)
+
+    print "save votes into files" 
+    for i in xrange(0, file_number):
+        f = open(prefix+str(i), 'w')
+        for item in data_list[i]:
+            f.write(str(random.getrandbits(32))+','+str(item)+'\n')
+        f.close()
 
 def main(argv):
     if len(sys.argv) < 6:
         error
     print argv
     params = opts(argv)
-    
+    print "generate votes...\n"
     votes = list(generate_votes(params['zipf_alpha'], params['vote_number']))
-    
+    print "vote generated, start writing\n" 
     write_votes(votes, params['file_number'], params['file_zipf_alpha'], params['file_prefix'])
     
 if __name__ == "__main__":

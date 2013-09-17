@@ -16,3 +16,6 @@
 *.out
 *.app
 vote_count
+*_res_*
+*_test_*
+tmp*

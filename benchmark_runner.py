@@ -7,7 +7,7 @@ import re
 TEMP_TIME_LOG = 'tmp_bench_time.log'
 TEMP_PROF_LOG = 'tmp_bench_prof.log'
 PROF_ARG = 'gprof -b -p vote_count > '+TEMP_PROF_LOG
-TIME_ARG = '/usr/bin/time -f "%E;%M" -o "'+TEMP_TIME_LOG+'" -a '
+TIME_ARG = '/usr/bin/time -f "%E;%M" -o "'+TEMP_TIME_LOG+'" '
 
 THREAD_OVERHEAD_LIST = ['add_vote', 'remove_vote', 'check_dup', 'init_mutex', 'threadpool_create','threadpool_destroy','threadpool_free']
 MUTEX_LIST = ['add_vote', 'remove_vote', 'check_dup']
@@ -41,7 +41,7 @@ def accumulate_data():
     
     f.close()
     f = open(TEMP_PROF_LOG, 'r')
-    prof = f.read().split('\n')[6:]
+    prof = f.read().split('\n')[4:]
     critical_precent = 0
     io_precent = 0
     mutex_call_times = 0

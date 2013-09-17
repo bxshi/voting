@@ -14,7 +14,18 @@ def get_file_list(file_number, prefix):
 # Description:
 #       Generate 2^26 votes into a single file, but with an variable a from 1.1 to 5 increased by 0.5. And for each test, it runs for 50 times
 
-FILE_NUM = 10
-for i in range(11, 12, 5):
-    os.system('./data_generator.py '+str(float(i)/10)+' '+str(2**10)+' '+str(FILE_NUM)+' 1.1 fh_test_')
-    os.system('./benchmark_runner.py 1 fh_res_'+str(i)+' "'+get_file_list(FILE_NUM, 'fh_test_')+'"')
+FILE_NUM = 500
+for i in range(10, 50, 5):
+    print "Test File Heterogeneity, alpha=",str(float(i)/10),' file number=',FILE_NUM,' file_distribution=1.0001'
+    os.system('./data_generator.py '+str(float(i)/10)+' '+str(2**26)+' '+str(FILE_NUM)+' 1 fh_test_')
+    os.system('./benchmark_runner.py 50 fh_res_'+str(i)+' "'+get_file_list(FILE_NUM, 'fh_test_')+'"')
+
+# Number Files
+
+# Description:
+#	Generate 2^26 votes, change distribution from 1 file to 2000 files, each runs 50 times
+
+for i in range(1, 500, 50):
+    print "Test Number Files"
+    os.system('./data_generator.py 1 '+str(2**26)+' '+str(i)+' 1 nf_test_')
+    os.system('./benchmark_runner.py 50 nf_res_'+str(i)+' "'+get_file_list(i, 'nf_test_')+'"')
