@@ -42,18 +42,14 @@ def write_votes(votes, file_number, alpha, prefix):
     bucket = generate_votes(alpha, len(votes))
     print "bucket initalized"
     for i in xrange(0, len(votes)):
-        try:
-            if votes[i] > MAX_INT32:
-                votes[i] = votes[i] % (MAX_INT32+1)
-            if bucket[i] > file_number:
-                bucket[i] = bucket[i] % file_number
-            data_list[bucket[i]].append(votes[i])
-        except IndexError:
-	    print i, votes[i]
-            print bucket[i]
-            print len(data_list)
+        if votes[i] > MAX_INT32:
+            votes[i] = votes[i] % (MAX_INT32+1)
+        if bucket[i] >= file_number:
+            bucket[i] = bucket[i] % file_number
+        data_list[bucket[i]].append(votes[i])
 
     print "save votes into files" 
+    
     for i in xrange(0, file_number):
         f = open(prefix+str(i), 'w')
         for item in data_list[i]:
