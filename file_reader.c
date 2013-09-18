@@ -14,9 +14,9 @@
 #include "constants.h"
 #include "vote_counter.h"
 
-ssize_t getline_warpper(char **linep, size_t *linecapp, FILE *stream);
-ssize_t getline_warpper(char **linep, size_t *linecapp, FILE *stream){
-	return getline(linep, linecapp, stream);
+ssize_t read_warpper(int fildes, void *buf, size_t nbyte);
+ssize_t read_warpper(int fildes, void *buf, size_t nbyte){
+	return read(fildes, buf, nbyte);
 }
 
 //read file by lines, and dispatch them to a vote counter
@@ -42,7 +42,7 @@ int readfile(void *arg)
     remainder[0] = '\0';
     fd = open(filename, O_RDONLY);
     
-    while((bytesRead = read(fd, buffer, block_size)) > 0 )
+    while((bytesRead = read_warpper(fd, buffer, block_size)) > 0 )
     {
         buffer[block_size] = '\0';
         beg = end = buffer;
