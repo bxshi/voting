@@ -45,7 +45,7 @@ os.system('rm -f bs_test_*')
 FILE_NUM = 500
 os.system('rm -f fh_*')
 os.system('echo zipf, time, memory, ratio, thread, mutex > fh_all')
-for i in range(10, 50, 5):
+for i in range(10, 20, 1):
     print "Test File Heterogeneity, alpha=",str(float(i)/10),' file number=',FILE_NUM,' file_distribution=1.0001'
     os.system('./data_generator.py '+str(float(i)/10)+' '+str(2**20)+' '+str(FILE_NUM)+' 1 fh_test_')
     os.system('./bench_worker.py 50 fh_all zipf '+str(float(i)/10)+' "'+get_file_list(FILE_NUM, 'fh_test_')+'"')

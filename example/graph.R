@@ -31,7 +31,7 @@ legend(fh_alpha_seq[which.min(fh_alpha_seq)]+0.2, fh_memory[which.max(fh_memory)
 dev.off()
 
 pdf('fh_io.pdf')
-plot(fh_alpha_seq, fh_ratio, xlab="Zipf Distribution Factor", ylab="I/O Versus Computing", type="o")
+plot(fh_alpha_seq, fh_ratio, xlab="Zipf Distribution Factor", ylab="I/O Versus Computing", type="o", ylim=c(0,0.5))
 legend(fh_alpha_seq[which.min(fh_alpha_seq)]+0.2, fh_ratio[which.max(fh_ratio)], c("Zipf distribution"), cex=0.8, pch=21, lty=1)
 dev.off()
 
@@ -119,7 +119,7 @@ legend(fsh_alpha_seq[which.min(fsh_alpha_seq)]+0.2, fsh_memory[which.max(fsh_mem
 dev.off()
 
 pdf('fsh_io.pdf')
-plot(fsh_alpha_seq, fsh_ratio, xlab="Zipf Distribution Ratio", ylab="I/O Versus Computing", type="o", pch=21, lty=1)
+plot(fsh_alpha_seq, fsh_ratio, xlab="Zipf Distribution Ratio", ylab="I/O Versus Computing", type="o", pch=21, lty=1, ylim=c(0,0.5))
 legend(fsh_alpha_seq[which.min(fsh_alpha_seq)]+0.2, fsh_ratio[which.max(fsh_ratio)], c("Zipf Distribution Ratio"), cex=0.8, pch=21, lty=1)
 dev.off()
 

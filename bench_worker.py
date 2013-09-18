@@ -9,9 +9,9 @@ TEMP_PROF_LOG = 'tmp_bench_prof.log'
 PROF_ARG = 'gprof -b -p vote_count > '+TEMP_PROF_LOG
 TIME_ARG = '/usr/bin/time -f "%E;%M" -o "'+TEMP_TIME_LOG+'" '
 
-THREAD_OVERHEAD_LIST = ['add_vote', 'remove_vote', 'check_dup', 'init_mutex', 'threadpool_create','threadpool_destroy','threadpool_free']
-MUTEX_LIST = ['add_vote', 'remove_vote', 'check_dup']
-IO_OVERHEAD_LIST = ['getline_warpper']
+THREAD_OVERHEAD_LIST = ['mutex_lock_warpper', 'mutex_unlock_warpper']
+MUTEX_LIST = ['add_vote']
+IO_OVERHEAD_LIST = ['read_warpper']
 
 def opts(argv):
     params = {}
