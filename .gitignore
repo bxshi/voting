@@ -20,3 +20,5 @@ vote_count
 *_test_*
 tmp*
 *_all
+./example/*.pdf
+./example/*_all
