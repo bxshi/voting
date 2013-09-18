@@ -12,7 +12,6 @@
 #define MAX_FILE_NUM 4096
 #define MAX_LINE_PRE_CHUNK 819200
 #define MAX_LINE_LEN 23 //2^32 10digits
-#define QUEUE 81920
 #define MAX_SIZE_PRE_FILE 17203200
 #define TRUE 1
 #define FALSE 0
@@ -37,6 +36,7 @@ typedef struct file_struct
 {
     char *filename;
     int dup_vote;
+    long block_size;
 } file_struct;
 
 //global hashmap
