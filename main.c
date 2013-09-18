@@ -29,8 +29,10 @@
 
 int main(int argc, char **argv)
 {
-
     int i, dup_vote;
+    int cores, block_size;
+    cores = 16;
+    block_size = 1024*1024;
     int *thread;
     file_struct *fs;
     threadpool_t *pool;
@@ -39,7 +41,7 @@ int main(int argc, char **argv)
 
     if(argc<2)
     {
-        printf("[usage] vote_counter [-dupvote] [filename1] ... [filenameN]\n");
+        printf("[usage] vote_counter [-dupvote] [-cores C] [-blocksize B] [filename1] ... [filenameN]\n");
         exit(-1);
     }
 
@@ -47,15 +49,16 @@ int main(int argc, char **argv)
     memset(file_list, 0, (sizeof(char*))*MAX_FILE_NUM);
 
     //analyze input arguments
-    if(!(dup_vote = opts(argc, argv, file_list, &thread)))
+    if(!(dup_vote = opts(argc, argv, file_list, &cores, &block_size, &thread)))
     {
         exit(-1);
     }
-
-    printf("thread number %d", *thread);
-
+    
+    printf("thread number %d\n", *thread);
+    //printf("cores %d; block_size %d\n", cores, block_size);
+    
     //create pool according to total file size & number
-    if((pool = threadpool_create(*thread, QUEUE, 0)) == NULL)
+    if((pool = threadpool_create(*thread, cores, 0)) == NULL)
     {
         printf("[error] can not initalize thread\n");
         exit(-1);
@@ -70,6 +73,7 @@ int main(int argc, char **argv)
         fs = malloc(sizeof(file_struct));
         fs->filename = file_list[i];
         fs->dup_vote = dup_vote;
+        fs->block_size = block_size;
 
         //send read task to thread pool
         threadpool_add(pool, &readfile, fs, 0);

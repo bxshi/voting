@@ -15,7 +15,7 @@
 
 #include "constants.h"
 
-int opts(int argc, char **argv, char **file_list, int **thread)
+int opts(int argc, char **argv, char **file_list, int *cores, int *block_size, int **thread)
 {
     u_int32_t i;
     u_int16_t file_cnt;
@@ -40,6 +40,16 @@ int opts(int argc, char **argv, char **file_list, int **thread)
                 if (!strcmp(argv[i],"-dupvote"))
                 {
                     rtn = 2;
+                }
+                else if (!strcmp(argv[i],"-cores"))
+                {
+                    i += 1;
+                    (*cores) = atoi(argv[i]);
+                }
+                else if (!strcmp(argv[i],"-blocksize"))
+                {
+                    i += 1;
+                    (*block_size) = atoi(argv[i]);
                 }
                 else
                 {

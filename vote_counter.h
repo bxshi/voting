@@ -9,7 +9,7 @@
 #ifndef assign1_vote_counter_h
 #define assign1_vote_counter_h
 void init_mutex();
-int count_vote(u_int32_t *uid, u_int32_t *voter, int vote_cnt, int dup_vote);
+int count_vote(unsigned int uid, unsigned int vid, int vote_cnt, int dup_vote);
 void add_vote(u_int32_t vote);
 
 void get_vote_result(int rank);
