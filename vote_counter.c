@@ -23,6 +23,14 @@ struct vote_history *vh = NULL;
 pthread_mutex_t vr_lock;
 pthread_mutex_t vh_lock;
 
+int mutex_lock_warpper(pthread_mutex_t *mutex){
+	return pthread_mutex_lock(mutex);
+}
+
+int mutex_unlock_warpper(pthread_mutex_t *mutex){
+	return pthread_mutex_unlock(mutex);
+} 
+
 struct result_chunk
 {
     struct vote_result *vr;
@@ -63,7 +71,7 @@ void add_vote(u_int32_t vote)
     struct result_chunk *rc;
 
     rc = &rc_list[hash_locator(vote)];
-    pthread_mutex_lock(&(rc->vr_lock));
+    mutex_lock_warpper(&(rc->vr_lock));
     HASH_FIND_INT(rc->vr, &vote, p);
     if(!p)
     {
@@ -76,7 +84,7 @@ void add_vote(u_int32_t vote)
     {
         p->count++;
     }
-    pthread_mutex_unlock(&(rc->vr_lock));
+    mutex_unlock_warpper(&(rc->vr_lock));
 
 }
 
@@ -87,7 +95,7 @@ void remove_vote(u_int32_t vote)
 
     rc = &rc_list[hash_locator(vote)];
 
-    pthread_mutex_lock(&(rc->vr_lock));
+    mutex_lock_warpper(&(rc->vr_lock));
     HASH_FIND_INT(rc->vr, &vote, p);
     if(!p)
     {
@@ -97,7 +105,7 @@ void remove_vote(u_int32_t vote)
     {
         p->count--;
     }
-    pthread_mutex_unlock(&(rc->vr_lock));
+    mutex_unlock_warpper(&(rc->vr_lock));
 
 };
 
@@ -108,7 +116,7 @@ short check_dup(u_int32_t uid, u_int32_t vote)
 
     rc = &rc_list[hash_locator(uid)];
 
-    pthread_mutex_lock(&(rc->vh_lock));
+    mutex_lock_warpper(&(rc->vh_lock));
     HASH_FIND_INT(rc->vh, &uid, p);
     if(!p)
     {
@@ -117,7 +125,7 @@ short check_dup(u_int32_t uid, u_int32_t vote)
         p->uid = uid;
         p->vote = vote;
         HASH_ADD_INT(rc->vh, uid, p);
-        pthread_mutex_unlock(&(rc->vh_lock));
+        mutex_unlock_warpper(&(rc->vh_lock));
 
         return FALSE;
     }
@@ -130,7 +138,7 @@ short check_dup(u_int32_t uid, u_int32_t vote)
             remove_vote(p->vote);
             p->vote = 0;
         }
-        pthread_mutex_unlock(&(rc->vh_lock));
+        mutex_unlock_warpper(&(rc->vh_lock));
 
         return TRUE;
     }
