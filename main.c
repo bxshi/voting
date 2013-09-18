@@ -58,7 +58,7 @@ int main(int argc, char **argv)
     //printf("cores %d; block_size %d\n", cores, block_size);
     
     //create pool according to total file size & number
-    if((pool = threadpool_create(*thread, cores, 0)) == NULL)
+    if((pool = threadpool_create(cores, 8192, 0)) == NULL)
     {
         printf("[error] can not initalize thread\n");
         exit(-1);
