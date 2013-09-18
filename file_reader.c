@@ -9,6 +9,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <fcntl.h>
 #include "file_reader.h"
 #include "constants.h"
 #include "vote_counter.h"
@@ -23,83 +24,122 @@ int readfile(void *arg)
 {
     char *filename;
     int dup_vote;
-    FILE *fp;
-    char *line, *val;
-    size_t len;
-    ssize_t read;
-    int cnt=0;
-    int cfinder = 0;
-    short valid;
-    long line_count = 0;
     filename = ((file_struct *)arg)->filename;
     dup_vote = ((file_struct *)arg)->dup_vote;
-
-    u_int32_t *uid = malloc(sizeof(u_int32_t) * MAX_LINE_PRE_CHUNK);
-    u_int32_t *voter = malloc(sizeof(u_int32_t) * MAX_LINE_PRE_CHUNK);
-    u_int32_t vote_cnt;
-
-    line = malloc(MAX_LINE_LEN);
-    val = NULL;
-    vote_cnt = 0;
-    valid = FALSE;
-
-    fp = fopen(filename, "r");
-    if(fp == NULL)
+    
+    int fd;
+    long block_size = ((file_struct *)arg)->block_size;
+    unsigned char buffer[block_size+1];
+    int bytesRead = 0;
+    char *line;
+    char *beg;
+    char *end;
+    char remainder[32];
+    int pairReady = 1;
+    unsigned int uid = 0;
+    unsigned int vid = 0;
+    
+    remainder[0] = '\0';
+    fd = open(filename, O_RDONLY);
+    
+    while((bytesRead = read(fd, buffer, block_size)) > 0 )
     {
-        printf("[error] %s does not exists\n", filename);
-        return FALSE;
-    }
-    else
-    {
-        while((read = getline_warpper(&line, &len, fp)) > 0)
-        {
-            cnt++;
-            line_count++;
-            if(read>MAX_LINE_LEN)
-            {
-                printf("[error] %s may out of the range, the length of this string is %zu\n", line, read);
-                free(line);
-                return FALSE;
+        buffer[block_size] = '\0';
+        beg = end = buffer;
+        
+        if (uid>0){
+            // There was a uid from the previous buffer
+            end = strchr(beg,'\n');
+            if (end!=NULL){
+                end[0] = '\0';
+                if (remainder[0]!='\0' && remainder[0]!=EOF){
+                    // Add data from new buffer the remainder
+                    char* tmp = remainder+strlen(remainder);
+                    strcpy(tmp,beg);
+                    vid = atoi(remainder);
+                    remainder[0] = '\0';
+                } else {
+                    vid = atoi(beg);
+                }
+                beg = end+1;
+                pairReady = 1;
+                    
+                    
+            } else {
+                // The file must be over because there is no newline
+                vid = atoi(beg);
+                pairReady = 1;
             }
-            //got enough lines, deal with it
-            if(vote_cnt>=MAX_LINE_PRE_CHUNK)
-            {
-                //TODO: dispatch vote data to vote counter
-                count_vote(uid, voter, vote_cnt, dup_vote);
-                vote_cnt = 0;
-                uid = malloc(sizeof(u_int32_t) * MAX_LINE_PRE_CHUNK);
-                voter = malloc(sizeof(u_int32_t) * MAX_LINE_PRE_CHUNK);
-            }
+        } else {
+            end = strchr(beg,',');
+            if (end!=NULL){
+                end[0] = '\0';
+                if (remainder[0]!='\0'){
+                    // Add data from new buffer the remainder
+                    char* tmp = remainder+strlen(remainder);
+                    strcpy(tmp,beg);
+                    uid = atoi(remainder);
+                    remainder[0] = '\0';
+                } else {
+                    uid = atoi(beg);
+                }
+                beg = end+1;
 
-            //seprate string by comma and convert it
-            valid = FALSE;
-            for(cfinder = 0; cfinder<read; cfinder++)
-            {
-                if (line[cfinder] == ',')
-                {
-                    valid = TRUE;
-                    line[cfinder] = '\0';
-                    break;
+                // Find end of voteID in string
+                end = strchr(beg,'\n');
+                if (end!=NULL){
+                    end[0] = '\0';
+                    vid = atoi(beg);
+                    beg = end+1;
+                    pairReady = 1;
+
+                } else {
+                    // The file must be over because there is no newline
+                    vid = atoi(beg);
+                    pairReady = 1;
                 }
             }
-            if(!valid)
-            {
-                printf("[error] The input data is invalid!\n %s %d %d\n", line, read, line_count);
-                exit(-1);
-            }
-            *(uid+vote_cnt) = atoi(line);
-            *(voter+vote_cnt) = atoi(line+cfinder+1);
-            (vote_cnt)++;
+        }
+        if (pairReady){
+            
+            
+            // Cast the votes
+            // Any changes here need to be made to the identical code below
+            count_vote(uid, vid, 1, dup_vote);
+            
+            uid = 0;
+            vid = 0;
+        }
+        while(end>0) {
+            // Find end of userID in string
+            line = beg;
+            end = strchr(beg,',');
+            if (end!=NULL){
+                end[0] = '\0';
+                uid = atoi(beg);
+                beg = end+1;
+                
+                // Find end of voteID in string
+                end = strchr(beg,'\n');
+                if (end!=NULL){
+                    end[0] = '\0';
+                    vid = atoi(beg);
+                    beg = end+1;
+                    
+                    
+                    // Cast the votes
+                    // Any changes here need to be made to the identical code above
+                    count_vote(uid, vid, 1, dup_vote);
+                    
+                    
+                    uid = 0;
+                    vid = 0;
+
+                } else strcpy(remainder,beg);
+            } else strcpy(remainder,beg);
         }
 
-        //flush remain data to vote counter
-        if(vote_cnt>0)
-        {
-            count_vote(uid, voter, vote_cnt, dup_vote);
-            vote_cnt = 0;
-        }
 
-        free(line);
-        return TRUE;
+
     }
 }

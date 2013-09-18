@@ -136,7 +136,7 @@ short check_dup(u_int32_t uid, u_int32_t vote)
     }
 }
 
-void count_vote(u_int32_t *uid, u_int32_t *vote, int vote_cnt, int dup_vote)
+void count_vote(unsigned int uid, unsigned int vid, int vote_cnt, int dup_vote)
 {
     int cnt;
 
@@ -147,20 +147,18 @@ void count_vote(u_int32_t *uid, u_int32_t *vote, int vote_cnt, int dup_vote)
 
         if(dup_vote)
         {
-            if(!check_dup(*(uid+cnt), *(vote+cnt)))
+            if(!check_dup(uid, vid))
             {
                 //not dup
-                add_vote(*(vote+cnt));
+                add_vote(vid);
             }
         }
         else
         {
-            add_vote(*(vote+cnt));
+            add_vote(vid);
         }
         cnt++;
     }
-    free(uid);
-    free(vote);
 }
 
 int sort_func(struct vote_result *a, struct vote_result *b)

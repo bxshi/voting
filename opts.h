@@ -9,6 +9,6 @@
 #ifndef assign1_opts_h
 #define assign1_opts_h
 
-int opts(int argc, char **argv, char **file_list, int **thread);
+int opts(int argc, char **argv, char **file_list, int *cores, int *block_size, int **thread);
 
 #endif
