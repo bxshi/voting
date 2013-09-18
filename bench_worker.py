@@ -66,8 +66,6 @@ def accumulate_data(custom_val):
 
 def main(argv):
     
-    print argv
-    
     params = opts(argv)
     
     f = open(params['log_file'], 'aw')
