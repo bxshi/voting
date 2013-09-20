@@ -26,6 +26,7 @@
 #include "file_reader.h"
 #include "vote_counter.h"
 #include "threadpool.h"
+#include "count.h"
 
 int main(int argc, char **argv)
 {
@@ -38,6 +39,7 @@ int main(int argc, char **argv)
     threadpool_t *pool;
 
     thread = malloc(sizeof(int));
+    init_count_mutex();
 
     if(argc<2)
     {
@@ -54,11 +56,10 @@ int main(int argc, char **argv)
         exit(-1);
     }
     
-    printf("thread number %d\n", *thread);
     //printf("cores %d; block_size %d\n", cores, block_size);
     
     //create pool according to total file size & number
-    if((pool = threadpool_create(cores, 8192, 0)) == NULL)
+    if((pool = threadpool_create(8, 8192, 0)) == NULL)
     {
         printf("[error] can not initalize thread\n");
         exit(-1);
@@ -66,13 +67,13 @@ int main(int argc, char **argv)
 
     init_mutex();
 
-    dup_vote = dup_vote == 2 ? TRUE : FALSE;
-
+    //dup_vote = dup_vote == 2 ? TRUE : FALSE;
+    dup_vote = FALSE;
     for (i=0; file_list[i]!=NULL; i++)
     {
         fs = malloc(sizeof(file_struct));
         fs->filename = file_list[i];
-        fs->dup_vote = dup_vote;
+        fs->dup_vote = FALSE;
         fs->block_size = block_size;
 
         //send read task to thread pool
@@ -84,6 +85,8 @@ int main(int argc, char **argv)
     threadpool_destroy(pool, 1);
 
     get_vote_result(3);
+
+	output();
 
     return 0;
 }

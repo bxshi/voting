@@ -12,6 +12,8 @@
 
 #include "constants.h"
 #include "uthash.h"
+#include "count.h"
+#include "time.h"
 
 #define HASH_NUM 256
 #define HASH_MASK 0xff //HASH_MASK should <= HASH_NUM
@@ -24,11 +26,26 @@ pthread_mutex_t vr_lock;
 pthread_mutex_t vh_lock;
 
 int mutex_lock_warpper(pthread_mutex_t *mutex){
-	return pthread_mutex_lock(mutex);
+	int res;
+	float seconds;
+	clock_t start,end;
+	add_mutex_call();
+	start = clock();
+	res = pthread_mutex_lock(mutex);
+	end = clock();
+	add_mutex_time((float)(end-start)/CLOCKS_PER_SEC);
+	return res;
 }
 
 int mutex_unlock_warpper(pthread_mutex_t *mutex){
-	return pthread_mutex_unlock(mutex);
+	int res;
+	float seconds;
+	clock_t start,end;
+	start = clock();
+	res = pthread_mutex_unlock(mutex);
+	end = clock();
+	add_mutex_time((float)(end-start)/CLOCKS_PER_SEC);
+	return res;
 } 
 
 struct result_chunk
@@ -206,8 +223,8 @@ void get_vote_result(int rank)
         }
 
         maxp->count = 0;
-
-        printf("%d,%d,%d\n", ++j, uid, count);
+	j++;
+        //printf("%d,%d,%d\n", ++j, uid, count);
     }
 
 }

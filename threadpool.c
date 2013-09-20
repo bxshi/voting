@@ -102,10 +102,8 @@ threadpool_t *threadpool_create(int thread_count, int queue_size, int flags)
     int i;
 
     /* TODO: Check for negative or otherwise very big input parameters */
-    printf("in func thread %d\n", thread_count);
     if((pool = (threadpool_t *)malloc(sizeof(threadpool_t))) == NULL)
     {
-	printf("bingo!\n");
         goto err;
     }
 
@@ -126,7 +124,6 @@ threadpool_t *threadpool_create(int thread_count, int queue_size, int flags)
             (pool->threads == NULL) ||
             (pool->queue == NULL))
     {
-	printf("bingo!!\n");
         goto err;
     }
 

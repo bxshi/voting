@@ -10,18 +10,30 @@
 #include <stdlib.h>
 #include <string.h>
 #include <fcntl.h>
+#include <time.h>
 #include "file_reader.h"
 #include "constants.h"
 #include "vote_counter.h"
+#include "count.h"
 
-ssize_t read_warpper(int fildes, void *buf, size_t nbyte);
-ssize_t read_warpper(int fildes, void *buf, size_t nbyte){
-	return read(fildes, buf, nbyte);
+
+ssize_t read_warpper(float *t, int fildes, void *buf, size_t nbyte);
+ssize_t read_warpper(float *t, int fildes, void *buf, size_t nbyte){
+	ssize_t rtn ;
+        float  seconds;
+        clock_t start, end;
+        start  = clock();
+        rtn = read(fildes, buf, nbyte);
+	end = clock();
+	*t = (float)(end - start) / CLOCKS_PER_SEC; 
+	add_io_time(*t);
+        return rtn;
 }
 
 //read file by lines, and dispatch them to a vote counter
 int readfile(void *arg)
 {
+    float total_read_time = 0;
     char *filename;
     int dup_vote;
     filename = ((file_struct *)arg)->filename;
@@ -42,7 +54,7 @@ int readfile(void *arg)
     remainder[0] = '\0';
     fd = open(filename, O_RDONLY);
     
-    while((bytesRead = read_warpper(fd, buffer, block_size)) > 0 )
+    while((bytesRead = read_warpper(&total_read_time, fd, buffer, block_size)) > 0 )
     {
         buffer[block_size] = '\0';
         beg = end = buffer;
@@ -63,8 +75,6 @@ int readfile(void *arg)
                 }
                 beg = end+1;
                 pairReady = 1;
-                    
-                    
             } else {
                 // The file must be over because there is no newline
                 vid = atoi(beg);
@@ -138,8 +148,6 @@ int readfile(void *arg)
                 } else strcpy(remainder,beg);
             } else strcpy(remainder,beg);
         }
-
-
-
     }
+    
 }
